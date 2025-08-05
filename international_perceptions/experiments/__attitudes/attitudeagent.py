@@ -244,18 +244,6 @@ class AttitudeAgent(CitizenAgentBase):
         all_responses = []
         for survey_prompt in survey_prompts:
             dialog = dialog[:1]
-
-            # 你们希望用来回答问卷的context放进来
-            # what = self.memory.status.get("What?")
-            # dialog.append(
-            #     {
-            #         "role": "system",
-            #         "content": f"""Answer the survey question based on following information:
-            #         - Your new opinions from the past year of news reading: {domain_opinions}.
-            #         - Respond in JSON format without any added markdown or other characters.
-            #         """,
-            #     }
-            # )
             dialog.append(
                 {
                     "role": "system",
@@ -555,84 +543,6 @@ class AttitudeAgent(CitizenAgentBase):
         # self.logger.info(f"Agent {self.id} 从第{batch_number}个20条新闻中选择了5篇阅读: {selected_titles}")
         return selected_news
 
-    # async def select_news_from_batch(self, news_batch: list, batch_number: int = 1) -> list:
-    #     """
-    #     Selects 5 articles to read from a batch of 20 by asking the LLM to
-    #     extract the specific news_id.
-    #     """
-    #     profile = await self.memory.status.get("profile") or {}
-    #     interests = profile.get("interests", [])
-    #     china_attitude = await self.memory.status.get("china_attitude", "neutral")
-    #     number_of_articles_to_read = 5
-
-    #     # --- CHANGE 1: Format the news as a list of JSON objects for the prompt ---
-    #     news_as_json_list = []
-    #     for news_id, title, _ in news_batch:
-    #         # Create a mini JSON object for each article
-    #         news_as_json_list.append(json.dumps({"id": news_id, "title": title}))
-        
-    #     formatted_news_list = "\n".join(news_as_json_list)
-
-    #     # --- CHANGE 2: Create a much more specific prompt with an example ---
-    #     selection_prompt = f"""
-    #     You are a data selection assistant. Your task is to analyze a list of news articles and select the ones that are most relevant to a user's profile.
-
-    #     **User Profile:**
-    #     - Interests: {interests}
-    #     - Attitude toward China: {china_attitude}
-
-    #     **News Articles (List of JSON Objects):**
-    #     {formatted_news_list}
-
-    #     **Instructions:**
-    #     1. Review the user profile and the list of news articles.
-    #     2. Select exactly **{number_of_articles_to_read}** articles that are most interesting to the user.
-    #     3. Your output MUST be a single JSON object containing a list of the selected article IDs.
-    #     4. For each article you select, you must find its corresponding JSON object from the list above and **copy the value of the 'id' field exactly as it appears.** Do not shorten or change the ID.
-
-    #     **EXAMPLE:**
-    #     If the input list contains:
-    #     {{"id": "12376", "title": "A highly relevant title about politics"}}
-    #     {{"id": "44", "title": "An irrelevant title about sports"}}
-    #     {{"id": "523537", "title": "Another relevant title about the economy"}}
-
-    #     And you choose the first and third articles, your output MUST be formatted exactly like this:
-    #     {{
-    #     "selected_ids": [
-    #         "44",
-    #         "12376"
-    #     ]
-    #     }}
-    #     """
-
-    #     try:
-    #         response = await self.llm.atext_request(
-    #             dialog=[
-    #                 {"role": "system", "content": "You are an assistant that helps select news articles and returns data in a strict JSON format."},
-    #                 {"role": "user", "content": selection_prompt}
-    #             ],
-    #             response_format={"type": "json_object"}
-    #         )
-    #         # debug response only selecting one article or zero when it's supposed to select 5
-    #         self.logger.debug(f"Agent {self.id} received response for news selection: {response}")
-    #         selected_ids_data = json_repair.loads(response)
-            
-    #         # This set will now contain the actual, long news IDs
-    #         selected_ids = set(selected_ids_data.get("selected_ids", []))
-
-    #     except Exception as e:
-    #         self.logger.error(f"Agent {self.id} failed to select news from batch: {e}")
-    #         return []
-
-    #     # This logic now works perfectly because selected_ids contains the real IDs
-    #     selected_news = [
-    #         (news_id, title, full_text)
-    #         for news_id, title, full_text in news_batch
-    #         if news_id in selected_ids
-    #     ]
-    
-    #     self.logger.info(f"Agent {self.id} successfully selected {len(selected_news)} articles to read using IDs.")
-    #     return selected_news
 
 
     async def self_reflection_on_batch(self, news_batch: List[Tuple[str, str, str]]):
